@@ -303,7 +303,9 @@ class ParametricStudy():
         doc.addLine("\\end{frame} \n")
         doc.addLine("%========================================== \n")
 
-    def create_summary_doc(self, summary_creation_function=None, **kwargs):
+    def create_summary_doc(self, summary_creation_function=None, summary_type=None, **kwargs):
+        if not hasattr(self, 'results_table'):
+            self.collect_results()
         p_doc = self.create_path(exp_id=None, path_type='analysis', create=True, exist_ok=True)
         p_doc = p_doc.joinpath(self.config['summary_doc_dir'], 'summary.tex')
 
@@ -320,7 +322,7 @@ class ParametricStudy():
             if summary_creation_function is not None:
                 summary_creation_function(doc, idx, row, **kwargs)
             else:
-                self.latex_experiment_summary(doc, idx, row, **kwargs)
+                self.latex_experiment_summary(doc, idx, row, summary_type, **kwargs)
 
         doc.writeDoc(p_doc)
         doc.compile()
