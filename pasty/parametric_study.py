@@ -6,6 +6,7 @@ import pickle
 import json
 import shutil
 from datetime import datetime
+import os
 
 from pasty import slurm_interface as si
 from pasty import images_to_latex as itl
@@ -36,7 +37,7 @@ class ParametricStudy():
                          'param_file_name' : 'params.py',
                          'template_source_folder' : None,
                          'template_target_folder' : 'all',
-                         'results_file_name' : 'summary.pkl',
+                         'results_file_name' : os.path.join('summary', 'simulation_parameterset_summary.pkl'),
                          'results_table_file_name': 'results_summary',
                          'parameter_table_file_name': 'parameter_summary',
                          'jobs_table_file_name': 'slurm_jobs_summary',
