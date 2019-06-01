@@ -222,7 +222,7 @@ class ParametricStudy():
                 results_series = pd.Series(results_dict, name=idx)
             else:
                 if verbose:
-                    print("  - id %03d: missing" % idx)
+                    print("  - id %03d: missing (%s)" % (idx,p_results_file))
                 results_series = pd.Series(name=idx)
             results_df = results_df.append(results_series)
         self.results_table = results_df
