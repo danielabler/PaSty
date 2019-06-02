@@ -319,11 +319,11 @@ class ParametricStudy():
         doc.addTitlePage()
         self.latex_study_information(doc, **kwargs)
         for idx, row in self.results_table.iterrows():
-            #doc.addLine("\\section{Configuration %03d} \n" % (idx))
+            doc.addLine("\\section{Configuration %03d} \n" % (idx))
             if summary_creation_function is not None:
                 summary_creation_function(doc, idx, row, **kwargs)
             else:
                 self.latex_experiment_summary(doc, idx, row, summary_type, **kwargs)
 
         doc.writeDoc(p_doc)
-        doc.compile()
+        doc.compile(n_times=3)

@@ -108,13 +108,13 @@ class LatexDoc():
             file.write("\\end{document} \n")
         self.path_to_tex = path_to_document
 
-    def compile(self, log_file=None):
+    def compile(self, log_file=None, n_times=1):
         ''' Run pdflatex on the resulting tex file '''
         if hasattr(self, 'path_to_tex'):
             # if log_file is None:
             #     log_file = self.path_to_tex.parent.joinpath('compile.log')
             latex_cmd = self.config['compile_command']
             compile_cmd = (latex_cmd, "-shell-escape", "-interaction=nonstopmode", self.path_to_tex.as_posix())
-            print("Running pdflatex: %s" % runCommand(compile_cmd, stdout=log_file, ignoredRetCodes=[1],
-                                                      cwd=self.path_to_tex.parent.as_posix()))
-
+            for i in range(n_times):
+                print("Running pdflatex (%i/%i): %s" % (i, n_times,
+                                                        runCommand(compile_cmd, stdout=log_file, ignoredRetCodes=[1], cwd=self.path_to_tex.parent.as_posix())))
