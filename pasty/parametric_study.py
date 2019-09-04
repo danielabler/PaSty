@@ -277,7 +277,10 @@ class ParametricStudy():
 
     def submit_array_job_missing(self, path_to_template, job_params=None, n_concurrent=None):
         results = self.results_table
-        no_results = results[results.relative_error_D_WM.isna()]
+        if 'relative_error_D_WM' in results.columns:
+            no_results = results[results.relative_error_D_WM.isna()]
+        else:
+            no_results = results
         indices = [str(index) for index in no_results.index]
         array_range = ",".join(indices)
         job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
