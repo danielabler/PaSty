@@ -221,15 +221,18 @@ class ParametricStudy():
                     print("  - id %03d: exists"%idx)
                 try:
                     results_dict = pickle.load(p_results_file.open(mode='rb'))
+                    results_dict['sim_name'] = 'sim_%03d'%idx
                     results_series = pd.Series(results_dict, name=idx)
                     results_df = results_df.append(results_series)
                 except:
                     results_df_tmp = pd.read_pickle(p_results_file.as_posix())
+                    results_df_tmp['sim_name'] = 'sim_%03d'%idx
                     results_df = results_df.append(results_df_tmp, ignore_index=True)
             else:
                 if verbose:
                     print("  - id %03d: missing (%s)" % (idx,p_results_file))
                 results_series = pd.Series(name=idx)
+                results_series['sim_name'] = 'sim_%03d'%idx
                 results_df = results_df.append(results_series)
         self.results_table = results_df
         #-- save
