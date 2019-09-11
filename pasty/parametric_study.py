@@ -140,10 +140,11 @@ class ParametricStudy():
 
     def generate_simulation_folder_structure(self, with_param_files=True,
                                                    with_template_files=True,
-                                                   exist_ok=False, verbose=False ):
+                                                   exist_ok=False, verbose=False):
         print("-- Generating simulation file structure in '%s'"%self.base_dir )
         if not hasattr(self, 'parameter_table'):
             self.create_parameter_table()
+        print(self.parameter_table)
         for idx, row in self.parameter_table.iterrows():
             # create dir
             p = self.create_path(exp_id=idx, path_type='simulation', create=True, exist_ok=exist_ok)
@@ -210,6 +211,25 @@ class ParametricStudy():
         dataframe.to_pickle(path_pkl)
         dataframe.to_csv(path_csv)
         print("-- Saving table '%s'"%path_xls)
+
+    def extend_study(self, param_names, params_values, generate_folders=False):
+        cart_prod_values = itertools.product(*params_values)
+        param_df_new = pd.DataFrame(columns=param_names)
+        for i, vars in enumerate(cart_prod_values):
+            param_df_new.loc[i] = vars
+        # merge existing with new
+        param_df_merged = self.parameter_table.merge(param_df_new, on=param_names, how="outer", suffixes=('', '_tmp'))
+        #param_df_merged = param_df_merged.drop('simulation_path_tmp', axis=1)
+        # assign to self.parameter_table & save
+        print("Updating parameter table")
+        self.parameter_table = param_df_merged
+        p_analysis = self.create_analysis_dir_path()
+        p_parameter_summary_file = p_analysis.joinpath(self.config['parameter_table_file_name'])
+        self.save_table(param_df_merged, p_parameter_summary_file)
+
+        if generate_folders:
+            self.generate_simulation_folder_structure(exist_ok=True, verbose=True)
+        self.save_state()
 
     def collect_results(self, verbose=False):
         print("-- Trying to assemble results.")
