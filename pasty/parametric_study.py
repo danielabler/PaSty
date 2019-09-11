@@ -303,9 +303,9 @@ class ParametricStudy():
         job_id = self.submit_job(path_to_template, params)
         return job_id
 
-    def submit_array_job_missing(self, path_to_template, job_params=None, n_concurrent=None):
+    def submit_array_job_missing(self, path_to_template, job_params=None, n_concurrent=None, results_col_name='relative_error_D_WM'):
         results = self.results_table
-        if 'relative_error_D_WM' in results.columns:
+        if results_col_name in results.columns:
             no_results = results[results.relative_error_D_WM.isna()]
         else:
             no_results = results
