@@ -305,13 +305,16 @@ class ParametricStudy():
 
     def submit_array_job_missing(self, path_to_template, job_params=None, n_concurrent=None, results_col_name='relative_error_D_WM'):
         results = self.results_table
-        if results_col_name in results.columns:
-            no_results = results[results[results_col_name].isna()]
+        if results_col_name is not None:
+            if results_col_name in results.columns:
+                no_results = results[results[results_col_name].isna()]
+            else:
+                no_results = results
+            indices = [str(index) for index in no_results.index]
+            array_range = ",".join(indices)
+            job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
         else:
-            no_results = results
-        indices = [str(index) for index in no_results.index]
-        array_range = ",".join(indices)
-        job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
+            job_id = self.submit_array_job(path_to_template, job_params, array_range='all', n_concurrent=n_concurrent)
         return job_id
 
     def latex_experiment_summary(self, doc, exp_id, results):
