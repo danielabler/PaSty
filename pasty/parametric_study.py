@@ -304,7 +304,7 @@ class ParametricStudy():
         return job_id
 
     def submit_array_job_missing(self, path_to_template, job_params=None, n_concurrent=None,
-                                 results_col_name='relative_error_D_WM', batch_size=300):
+                                 results_col_name='relative_error_D_WM', batch_size=100):
         results = self.results_table
         if results_col_name is not None:
             if results_col_name in results.columns:
@@ -319,7 +319,7 @@ class ParametricStudy():
                 else:
                     batch = indices
                     indices = []
-                array_range = ",".join(indices)
+                array_range = ",".join(batch)
                 job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
         else:
             job_id = self.submit_array_job(path_to_template, job_params, array_range='all', n_concurrent=n_concurrent)
