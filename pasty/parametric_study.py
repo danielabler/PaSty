@@ -297,7 +297,11 @@ class ParametricStudy():
         if n_concurrent is not None:
             concurrency_str = "%%%i"%n_concurrent
             array_range = array_range+concurrency_str
-        params = {"VAR_JOB_ARRAY_RANGE" : array_range}
+        jobs_dir = self.create_path(path_type='jobs', create=True, exist_ok=True)
+        params = {"VAR_JOB_ARRAY_RANGE" : array_range,
+                  'VAR_SLURM_OUT': jobs_dir.joinpath('slurm_output_%A_%a.out').as_posix(),
+                  'VAR_SLURM_ERROR_OUT': jobs_dir.joinpath('slurm_output_error_%A_%a.out').as_posix()
+                  }
         if job_params is not None:
             params.update(job_params)
         job_id = self.submit_job(path_to_template, params)
