@@ -238,21 +238,22 @@ class ParametricStudy():
             p_results_file = self.create_path_results_file(idx)
             if p_results_file.exists():
                 if verbose:
-                    print("  - id %03d: exists"%idx)
+                    print("  - id %04d: exists"%idx)
                 try:
                     results_dict = pickle.load(p_results_file.open(mode='rb'))
-                    results_dict['sim_name'] = 'sim_%03d'%idx
+                    results_dict['sim_name'] = 'sim_%04d'%idx
                     results_series = pd.Series(results_dict, name=idx)
                     results_df = results_df.append(results_series)
                 except:
+                    print(p_results_file.as_posix())
                     results_df_tmp = pd.read_pickle(p_results_file.as_posix())
-                    results_df_tmp['sim_name'] = 'sim_%03d'%idx
+                    results_df_tmp['sim_name'] = 'sim_%04d'%idx
                     results_df = results_df.append(results_df_tmp, ignore_index=True)
             else:
                 if verbose:
                     print("  - id %03d: missing (%s)" % (idx,p_results_file))
                 results_series = pd.Series(name=idx)
-                results_series['sim_name'] = 'sim_%03d'%idx
+                results_series['sim_name'] = 'sim_%04d'%idx
                 results_df = results_df.append(results_series)
         self.results_table = results_df
         #-- save
@@ -312,15 +313,19 @@ class ParametricStudy():
             else:
                 no_results = results
             indices = [str(index) for index in no_results.index]
-            while len(indices) > 0:
-                if len(indices) > batch_size:
-                    batch = indices[:batch_size]
-                    indices = indices[batch_size:]
-                else:
-                    batch = indices
-                    indices = []
-                array_range = ",".join(batch)
-                job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
+            if len(indices)==0:
+                print("Nothing to submit")
+                job_id = None
+            else:
+                while len(indices) > 0:
+                    if len(indices) > batch_size:
+                        batch = indices[:batch_size]
+                        indices = indices[batch_size:]
+                    else:
+                        batch = indices
+                        indices = []
+                    array_range = ",".join(batch)
+                    job_id = self.submit_array_job(path_to_template, job_params, array_range=array_range, n_concurrent=n_concurrent)
         else:
             job_id = self.submit_array_job(path_to_template, job_params, array_range='all', n_concurrent=n_concurrent)
         return job_id
