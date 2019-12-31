@@ -240,15 +240,18 @@ class ParametricStudy():
                 if verbose:
                     print("  - id %04d: exists"%idx)
                 try:
-                    results_dict = pickle.load(p_results_file.open(mode='rb'))
-                    results_dict['sim_name'] = 'sim_%04d'%idx
-                    results_series = pd.Series(results_dict, name=idx)
-                    results_df = results_df.append(results_series)
+                    try:
+                        results_dict = pickle.load(p_results_file.open(mode='rb'))
+                        results_dict['sim_name'] = 'sim_%04d'%idx
+                        results_series = pd.Series(results_dict, name=idx)
+                        results_df = results_df.append(results_series)
+                    except:
+                        print(p_results_file.as_posix())
+                        results_df_tmp = pd.read_pickle(p_results_file.as_posix())
+                        results_df_tmp['sim_name'] = 'sim_%04d'%idx
+                        results_df = results_df.append(results_df_tmp, ignore_index=True)
                 except:
-                    print(p_results_file.as_posix())
-                    results_df_tmp = pd.read_pickle(p_results_file.as_posix())
-                    results_df_tmp['sim_name'] = 'sim_%04d'%idx
-                    results_df = results_df.append(results_df_tmp, ignore_index=True)
+                    print("Cannot load '%s'"%p_results_file.as_posix())
             else:
                 if verbose:
                     print("  - id %03d: missing (%s)" % (idx,p_results_file))
