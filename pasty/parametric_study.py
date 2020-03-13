@@ -207,9 +207,12 @@ class ParametricStudy():
         path_pkl = str(base_path)+'.pkl'
         path_xls = str(base_path) + '.xls'
         path_csv = str(base_path) + '.csv'
-        dataframe.to_excel(path_xls)
         dataframe.to_pickle(path_pkl)
         dataframe.to_csv(path_csv)
+        try:
+            dataframe.to_excel(path_xls)
+        except Exception as e:
+            print("Problem writing xls: ", e)
         print("-- Saving table '%s'"%path_xls)
 
     def extend_study(self, param_names, params_values, generate_folders=False):
