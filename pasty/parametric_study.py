@@ -140,29 +140,34 @@ class ParametricStudy():
 
     def generate_simulation_folder_structure(self, with_param_files=True,
                                                    with_template_files=True,
-                                                   exist_ok=False, verbose=False):
+                                                   exist_ok=False, verbose=False, overwrite=False):
         print("-- Generating simulation file structure in '%s'"%self.base_dir )
         if not hasattr(self, 'parameter_table'):
             self.create_parameter_table()
         print(self.parameter_table)
         for idx, row in self.parameter_table.iterrows():
-            # create dir
-            p = self.create_path(exp_id=idx, path_type='simulation', create=True, exist_ok=exist_ok)
-            if verbose:
-                print("  - ID %03d: Creating folder '%s'"%(idx, p))
-            # add path to parameter_table
-            self.parameter_table.loc[idx,'simulation_path'] = p.as_posix()
-            # write parameter files
-            if with_param_files:
-                path_param_json = p.joinpath(self.config['param_file_name'])
-                self.write_parameter_file(idx, path_param_json)
-            # copy content of template folder
-            if self.config['template_source_folder'] and with_template_files:
-                if self.config['template_target_folder'] =='all':
-                    if verbose:
-                        print("  - ID %03d: Copying files from '%s'" % (idx, self.config['template_source_folder']))
-                    p_template = pl.Path(self.config['template_source_folder'])
-                    self.copy_files(p_template, p)
+            p = self.create_path(exp_id=idx, path_type='simulation', create=False, exist_ok=exist_ok)
+            if p.is_dir() and not overwrite: # exists & don't touch
+                if verbose:
+                    print("  - ID %03d: skipping ... folder'%s' exists" % (idx, p))
+            else: # create
+                # create dir
+                p = self.create_path(exp_id=idx, path_type='simulation', create=True, exist_ok=exist_ok)
+                if verbose:
+                    print("  - ID %03d: Creating folder '%s'"%(idx, p))
+                # add path to parameter_table
+                self.parameter_table.loc[idx,'simulation_path'] = p.as_posix()
+                # write parameter files
+                if with_param_files:
+                    path_param_json = p.joinpath(self.config['param_file_name'])
+                    self.write_parameter_file(idx, path_param_json)
+                # copy content of template folder
+                if self.config['template_source_folder'] and with_template_files:
+                    if self.config['template_target_folder'] =='all':
+                        if verbose:
+                            print("  - ID %03d: Copying files from '%s'" % (idx, self.config['template_source_folder']))
+                        p_template = pl.Path(self.config['template_source_folder'])
+                        self.copy_files(p_template, p)
         if self.config['template_source_folder'] and self.config['template_target_folder'] != 'all' and with_template_files:
             p_template_source = pl.Path(self.config['template_source_folder'])
             p_template_target = pl.Path(self.config['template_target_folder'])
@@ -215,7 +220,7 @@ class ParametricStudy():
             print("Problem writing xls: ", e)
         print("-- Saving table '%s'"%path_xls)
 
-    def extend_study(self, param_names, params_values, generate_folders=False):
+    def extend_study(self, param_names, params_values, generate_folders=False, overwrite=False):
         cart_prod_values = itertools.product(*params_values)
         param_df_new = pd.DataFrame(columns=param_names)
         for i, vars in enumerate(cart_prod_values):
@@ -231,7 +236,7 @@ class ParametricStudy():
         self.save_table(param_df_merged, p_parameter_summary_file)
 
         if generate_folders:
-            self.generate_simulation_folder_structure(exist_ok=True, verbose=True)
+            self.generate_simulation_folder_structure(exist_ok=True, verbose=True, overwrite=overwrite)
         self.save_state()
 
     def collect_results(self, verbose=False):
