@@ -327,7 +327,9 @@ class ParametricStudy():
                 no_results = results[results[results_col_name].isna()]
             else:
                 no_results = results
-            indices = [str(index) for index in no_results.index]
+            unique_sim_names = no_results.sim_name.unique()
+            indices = [int(sim_name.split('_')[1]) for sim_name in unique_sim_names]
+            #indices = [str(index) for index in no_results.index]
             if len(indices)==0:
                 print("Nothing to submit")
                 job_id = None
